@@ -30,6 +30,12 @@ jobs:
           ruby-version: '3.2'
           bundler-cache: true
 
+      - name: Install SwiftLint
+        run: brew install swiftlint
+
+      - name: Run Lint via Fastlane
+        run: bundle exec fastlane lint
+
       - name: Run Fastlane Test check
         run: bundle exec fastlane tests
         env:

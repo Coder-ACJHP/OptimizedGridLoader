@@ -1,0 +1,12 @@
+disabled_rules:
+  - trailing_whitespace
+opt_in_rules:
+  - empty_count
+  - vertical_whitespace
+
+included:
+  - OptimizedGridLoader
+excluded:
+  - Pods
+  - Carthage
+  - fastlane

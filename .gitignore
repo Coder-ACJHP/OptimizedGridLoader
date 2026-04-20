@@ -5,6 +5,7 @@
 fastlane/report.xml
 fastlane/Preview.html
 fastlane/test_output
+fastlane/swiftlint-report.html
 fastlane/screenshots
 *.ipa
 *.app
