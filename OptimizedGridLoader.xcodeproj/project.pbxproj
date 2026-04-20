@@ -82,7 +82,7 @@
 				F23B25AE2F615F570025C9D5 /* Utilities */,
 				F23B25A12F6151930025C9D5 /* Controllers */,
 			);
-			path = OptimizedGridLoader;
+			name = OptimizedGridLoader;
 			sourceTree = "<group>";
 		};
 		F23B259E2F61515F0025C9D5 /* App */ = {
