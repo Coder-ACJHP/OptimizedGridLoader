@@ -8,6 +8,7 @@ platform :ios do
   	lane :lint do
     		swiftlint(
       			executable: "swiftlint",
+				config_file: ".swiftlint.yml"
       			strict: false,
       			output_file: "fastlane/swiftlint-report.html",
       			reporter: "html",
