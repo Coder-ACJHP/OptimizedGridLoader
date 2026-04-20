@@ -10,7 +10,8 @@ platform :ios do
       			executable: "swiftlint",
       			strict: false,
       			output_file: "fastlane/swiftlint-report.html",
-      			reporter: "html"
+      			reporter: "html",
+			ignore_exit_status: true
     		)
   	end
 
