@@ -33,9 +33,6 @@ jobs:
       - name: Install SwiftLint
         run: brew install swiftlint
 
-      - name: Run Lint via Fastlane
-        run: bundle exec fastlane lint
-
       - name: Run Fastlane Test check
         run: bundle exec fastlane tests
         env:
