@@ -21,7 +21,7 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 [bundle exec] fastlane ios lint
 ```
 
-Kod stilini kontrol eder
+Check code style
 
 ### ios tests
 
@@ -29,7 +29,7 @@ Kod stilini kontrol eder
 [bundle exec] fastlane ios tests
 ```
 
-Run all tests ve report the results
+Run all tests and report the results
 
 ----
 

@@ -4,7 +4,7 @@
 default_platform(:ios)
 
 platform :ios do
-	desc "Kod stilini kontrol eder"
+	desc "Check code style"
   	lane :lint do
     		swiftlint(
       			executable: "swiftlint",
@@ -14,7 +14,7 @@ platform :ios do
     		)
   	end
 
-    desc "Run all tests ve report the results"
+    desc "Run all tests and report the results"
     lane :tests do
 	lint
         scan(
