@@ -17,7 +17,7 @@ struct Photo: Codable, Hashable, Identifiable {
         case id, author, width, height, url
         case downloadURL = "download_url"
     }
-    
+
     func optimizedURLString(pixelWidth: Int) -> String {
         let aspectRatio = CGFloat(height) / CGFloat(width)
         let pixelHeight = Int(CGFloat(pixelWidth) * aspectRatio)

@@ -8,11 +8,11 @@
 import UIKit
 
 class PhotoCell: UICollectionViewCell {
-    
+
     private var loadTask: Task<Void, Never>?
     private var representingIdentifier: String?
     static let reuseIdentifier = String(describing: PhotoCell.self)
-    
+
     public let imageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
@@ -20,17 +20,17 @@ class PhotoCell: UICollectionViewCell {
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
-    
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         initCommon()
     }
-    
+
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         initCommon()
     }
-    
+
     private func initCommon() {
         contentView.addSubview(imageView)
         NSLayoutConstraint.activate([
@@ -40,20 +40,20 @@ class PhotoCell: UICollectionViewCell {
             imageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor)
         ])
     }
-    
+
     public func configure(withLoader loader: ImageLoader, photo: Photo, contentMode: UIView.ContentMode) {
         imageView.contentMode = contentMode
-        
+
         let scale = UIScreen.main.scale
         let pixelWidth = Int(contentView.bounds.width) * Int(scale)
         guard let downloadURL = URL(string: photo.optimizedURLString(pixelWidth: pixelWidth)) else { return }
-        
+
         let targetSize = contentView.bounds.size
         representingIdentifier = photo.id
-        
+
         loadTask = Task { [weak self] in
             guard let self else { return }
-            
+
             do {
                 let image = try await loader.loadImage(from: downloadURL, targetSize: targetSize, scale: scale)
                 guard !Task.isCancelled, self.representingIdentifier == photo.id else { return }
@@ -63,10 +63,10 @@ class PhotoCell: UICollectionViewCell {
             }
         }
     }
-    
+
     override func prepareForReuse() {
         super.prepareForReuse()
-        
+
         imageView.image = nil
         representingIdentifier = nil
         loadTask?.cancel()

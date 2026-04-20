@@ -28,8 +28,7 @@ class Router: RouterDelegate {
     var controller: UINavigationController
     let homeFactory: HomeViewControllerFactory
     private let navigationTransitionDelegate: UINavigationControllerDelegate
-    
-    
+
     init(controller: UINavigationController, homeFactory: HomeViewControllerFactory) {
         self.controller = controller
         self.homeFactory = homeFactory
@@ -37,23 +36,23 @@ class Router: RouterDelegate {
         self.navigationTransitionDelegate = transitionDelegate
         controller.delegate = transitionDelegate
     }
-    
+
     func navigate(to route: Route, animated: Bool = true) {
         let destinationVC = makeViewController(route: route)
         controller.pushViewController(destinationVC, animated: animated)
     }
-    
+
     func present(route: Route, animated: Bool = true) {
         let rootViewController = makeViewController(route: route)
         // Wraps in a new NavigationController so if needed the modal has its own navigation stack
         let navController = UINavigationController(rootViewController: rootViewController)
         controller.present(navController, animated: animated)
     }
-    
+
     func dismiss(animated: Bool = true) {
         controller.dismiss(animated: animated)
     }
-    
+
     func pop(animated: Bool = true) {
         controller.popViewController(animated: animated)
     }
@@ -61,7 +60,7 @@ class Router: RouterDelegate {
     func popToRoot(animated: Bool = true) {
         controller.popToRootViewController(animated: animated)
     }
-        
+
     func makeViewController(route: Route) -> UIViewController {
         switch route {
             case .home:

@@ -17,21 +17,21 @@ protocol PhotoTransitionDestinationProviding: AnyObject {
 }
 
 final class PhotoZoomAnimator: NSObject, UIViewControllerAnimatedTransitioning {
-    
+
     enum Operation {
         case push
         case pop
     }
-    
+
     private let operation: Operation
-    
+
     init(operation: Operation) {
         self.operation = operation
         super.init()
     }
-    
+
     func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval { 0.45 }
-    
+
     func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
         guard
             let fromViewController = transitionContext.viewController(forKey: .from),
@@ -40,7 +40,7 @@ final class PhotoZoomAnimator: NSObject, UIViewControllerAnimatedTransitioning {
             transitionContext.completeTransition(false)
             return
         }
-        
+
         switch operation {
         case .push:
             performPushTransition(
@@ -56,9 +56,9 @@ final class PhotoZoomAnimator: NSObject, UIViewControllerAnimatedTransitioning {
             )
         }
     }
-    
+
     // MARK: - Private
-    
+
     private func performPushTransition(
         context: UIViewControllerContextTransitioning,
         fromViewController: UIViewController,
@@ -71,37 +71,37 @@ final class PhotoZoomAnimator: NSObject, UIViewControllerAnimatedTransitioning {
             performFallbackPush(context: context, toViewController: toViewController)
             return
         }
-        
+
         let containerView = context.containerView
         let duration = transitionDuration(using: context)
-        
+
         let photo = destinationViewController.photo
         guard let sourceImageView = sourceViewController.photoTransitionSourceImageView(for: photo) else {
             performFallbackPush(context: context, toViewController: toViewController)
             return
         }
-        
+
         let destinationImageView = destinationViewController.photoImageView
-        
+
         // Ensure destination layout is ready
         destinationViewController.view.frame = context.finalFrame(for: destinationViewController)
         destinationViewController.view.layoutIfNeeded()
-        
+
         let startFrame = sourceImageView.convert(sourceImageView.bounds, to: containerView)
         let endFrame = destinationImageView.convert(destinationImageView.bounds, to: containerView)
-        
+
         let transitionImageView = UIImageView(image: destinationImageView.image ?? sourceImageView.image)
         transitionImageView.contentMode = destinationImageView.contentMode
         transitionImageView.clipsToBounds = true
         transitionImageView.frame = startFrame
-        
+
         sourceImageView.isHidden = true
         destinationImageView.isHidden = true
-        
+
         containerView.addSubview(destinationViewController.view)
         destinationViewController.view.alpha = 0
         containerView.addSubview(transitionImageView)
-        
+
         UIView.animate(
             withDuration: duration,
             delay: 0,
@@ -119,7 +119,7 @@ final class PhotoZoomAnimator: NSObject, UIViewControllerAnimatedTransitioning {
             context.completeTransition(!wasCancelled && finished)
         }
     }
-    
+
     private func performPopTransition(
         context: UIViewControllerContextTransitioning,
         fromViewController: UIViewController,
@@ -132,36 +132,36 @@ final class PhotoZoomAnimator: NSObject, UIViewControllerAnimatedTransitioning {
             performFallbackPop(context: context, toViewController: toViewController, fromViewController: fromViewController)
             return
         }
-        
+
         let containerView = context.containerView
         let duration = transitionDuration(using: context)
-        
+
         let photo = sourceViewController.photo
         let destinationImageViewOptional = destinationViewController.photoTransitionSourceImageView(for: photo)
         let sourceImageView = sourceViewController.photoImageView
-        
+
         guard let destinationImageView = destinationImageViewOptional else {
             performFallbackPop(context: context, toViewController: toViewController, fromViewController: fromViewController)
             return
         }
-        
+
         destinationViewController.view.frame = context.finalFrame(for: toViewController)
         destinationViewController.view.layoutIfNeeded()
-        
+
         let startFrame = sourceImageView.convert(sourceImageView.bounds, to: containerView)
         let endFrame = destinationImageView.convert(destinationImageView.bounds, to: containerView)
-        
+
         let transitionImageView = UIImageView(image: sourceImageView.image)
         transitionImageView.contentMode = destinationImageView.contentMode
         transitionImageView.clipsToBounds = true
         transitionImageView.frame = startFrame
-        
+
         sourceImageView.isHidden = true
         destinationImageView.isHidden = true
-        
+
         containerView.insertSubview(toViewController.view, belowSubview: fromViewController.view)
         containerView.addSubview(transitionImageView)
-        
+
         UIView.animate(
             withDuration: duration,
             delay: 0,
@@ -176,7 +176,7 @@ final class PhotoZoomAnimator: NSObject, UIViewControllerAnimatedTransitioning {
             destinationImageView.isHidden = false
             transitionImageView.removeFromSuperview()
             fromViewController.view.alpha = 1
-            
+
             let wasCancelled = context.transitionWasCancelled
             if wasCancelled {
                 // Restore hierarchy when cancelled
@@ -185,18 +185,18 @@ final class PhotoZoomAnimator: NSObject, UIViewControllerAnimatedTransitioning {
             context.completeTransition(!wasCancelled && finished)
         }
     }
-    
+
     private func performFallbackPush(
         context: UIViewControllerContextTransitioning,
         toViewController: UIViewController
     ) {
         let containerView = context.containerView
         let duration = transitionDuration(using: context)
-        
+
         toViewController.view.frame = context.finalFrame(for: toViewController)
         toViewController.view.alpha = 0
         containerView.addSubview(toViewController.view)
-        
+
         UIView.animate(withDuration: duration, animations: {
             toViewController.view.alpha = 1
         }, completion: { finished in
@@ -204,7 +204,7 @@ final class PhotoZoomAnimator: NSObject, UIViewControllerAnimatedTransitioning {
             context.completeTransition(!wasCancelled && finished)
         })
     }
-    
+
     private func performFallbackPop(
         context: UIViewControllerContextTransitioning,
         toViewController: UIViewController,
@@ -212,10 +212,10 @@ final class PhotoZoomAnimator: NSObject, UIViewControllerAnimatedTransitioning {
     ) {
         let containerView = context.containerView
         let duration = transitionDuration(using: context)
-        
+
         toViewController.view.frame = context.finalFrame(for: toViewController)
         containerView.insertSubview(toViewController.view, belowSubview: fromViewController.view)
-        
+
         UIView.animate(withDuration: duration, animations: {
             fromViewController.view.alpha = 0
         }, completion: { finished in
@@ -230,7 +230,7 @@ final class PhotoZoomAnimator: NSObject, UIViewControllerAnimatedTransitioning {
 }
 
 final class PhotoNavigationControllerDelegate: NSObject, UINavigationControllerDelegate {
-    
+
     func navigationController(
         _ navigationController: UINavigationController,
         animationControllerFor operation: UINavigationController.Operation,
@@ -246,7 +246,7 @@ final class PhotoNavigationControllerDelegate: NSObject, UINavigationControllerD
                 return nil
             }
             return PhotoZoomAnimator(operation: .push)
-            
+
         case .pop:
             guard
                 toVC is (UIViewController & PhotoTransitionSourceProviding),
@@ -260,4 +260,3 @@ final class PhotoNavigationControllerDelegate: NSObject, UINavigationControllerD
         }
     }
 }
-

@@ -14,9 +14,9 @@ enum PhotoError: Error {
 }
 
 final class PhotoService {
-    
+
     private let session = URLSessionFactory.make()
-        
+
     /// Fetches a paginated list of photos from the Picsum API.
     /// Uses `returnCacheDataElseLoad` policy so repeated requests for the same page
     /// are served from URLCache without hitting the network again.
@@ -24,13 +24,13 @@ final class PhotoService {
         guard let url = URL(string: "https://picsum.photos/v2/list?page=\(page)&limit=\(limit)") else {
             throw PhotoError.invalidURL
         }
-                
+
         do {
-            
+
             let (data, _) = try await session.data(from: url)
             let photos: [Photo] = try JSONDecoder().decode([Photo].self, from: data)
             return photos
-            
+
         } catch {
             throw PhotoError.decodingError
         }

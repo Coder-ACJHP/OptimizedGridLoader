@@ -9,7 +9,7 @@ import UIKit
 import Combine
 
 class HomeViewController: UIViewController {
-    
+
     private lazy var gridLayout: UICollectionViewFlowLayout = {
         let layout = UICollectionViewFlowLayout()
         layout.minimumLineSpacing = 5
@@ -17,7 +17,7 @@ class HomeViewController: UIViewController {
         layout.itemSize = vm.cellSize
         return layout
     }()
-    
+
     private lazy var collectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: gridLayout)
         collectionView.backgroundColor = .systemBackground
@@ -29,14 +29,14 @@ class HomeViewController: UIViewController {
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         return collectionView
     }()
-    
+
     private lazy var loadingBarItem: UIBarButtonItem = {
         let spinner = UIActivityIndicatorView(style: .medium)
         spinner.color = .label
         spinner.startAnimating()
         return UIBarButtonItem(customView: spinner)
     }()
-    
+
     private lazy var contentModeButton: UIBarButtonItem = {
         let action = UIAction(image: contentModeIcon(for: cellImageContentMode)) { [weak self] _ in
             self?.toggleContentMode()
@@ -45,7 +45,7 @@ class HomeViewController: UIViewController {
         item.tintColor = .label
         return item
     }()
-    
+
     private let vm: HomeViewModel
     private let router: RouterDelegate
     private var cancellables: Set<AnyCancellable> = []
@@ -57,36 +57,35 @@ class HomeViewController: UIViewController {
     /// internal consistency check (expected count == dataSource count) never fails,
     /// even when two network pages complete before the RunLoop delivers either Combine event.
     private var displayedPhotos: [Photo] = []
-    
-    
+
     init(viewModel: HomeViewModel, router: RouterDelegate) {
         self.vm = viewModel
         self.vm.screenScale = UIScreen.main.scale
         self.router = router
         super.init(nibName: nil, bundle: nil)
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
-        
+
         configureNavigationBar()
         setupBinding()
         setupCollectionView()
         vm.fetchInitialPhotos()
     }
-    
+
     /// Syncs the computed cell size to the ViewModel after layout completes,
     /// so prefetch requests use the correct pixel dimensions.
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         vm.cellSize = preferredCellSize
     }
-    
+
     /// Wires ViewModel callbacks to UI updates.
     /// - First emission: full `reloadData` for the initial page.
     /// - Subsequent emissions: incremental insert via `performBatchUpdates`.
@@ -108,12 +107,12 @@ class HomeViewController: UIViewController {
                 navigationItem.leftBarButtonItem = isLoading ? loadingBarItem : nil
             }
             .store(in: &cancellables)
-        
+
         vm.$photos
             .receive(on: RunLoop.main)
             .sink { [weak self] newPhotos in
                 guard let self else { return }
-                
+
                 if displayedPhotos.isEmpty {
                     displayedPhotos = newPhotos
                     collectionView.reloadData()
@@ -132,15 +131,15 @@ class HomeViewController: UIViewController {
             }
             .store(in: &cancellables)
     }
-    
+
     private func configureNavigationBar() {
         navigationItem.title = "OptimizedGridLoader"
         navigationItem.largeTitleDisplayMode = .automatic
         navigationItem.rightBarButtonItem = contentModeButton
-        
+
         guard let navbar = navigationController?.navigationBar else { return }
         navbar.prefersLargeTitles = true
-        
+
         let appearance = UINavigationBarAppearance()
         appearance.configureWithTransparentBackground()
         if #unavailable(iOS 26) {
@@ -150,7 +149,7 @@ class HomeViewController: UIViewController {
         navbar.scrollEdgeAppearance = appearance
         navbar.compactAppearance = appearance
     }
-    
+
     private func setupCollectionView() {
         view.addSubview(collectionView)
         NSLayoutConstraint.activate([
@@ -160,20 +159,20 @@ class HomeViewController: UIViewController {
             collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
-    
+
     private func contentModeIcon(for mode: UIView.ContentMode) -> UIImage? {
         let name = mode == .scaleAspectFill
             ? "arrow.up.left.and.arrow.down.right.square.fill"
             : "arrow.down.right.and.arrow.up.left.square.fill"
         return UIImage(systemName: name)?.withRenderingMode(.alwaysTemplate)
     }
-    
+
     private func toggleContentMode() {
         cellImageContentMode = cellImageContentMode == .scaleAspectFill
             ? .scaleAspectFit
             : .scaleAspectFill
         contentModeButton.image = contentModeIcon(for: cellImageContentMode)
-        
+
         collectionView.visibleCells.forEach { cell in
             guard let photoCell = cell as? PhotoCell else { return }
             UIView.transition(
@@ -193,10 +192,12 @@ extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSour
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         displayedPhotos.count
     }
-    
+
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let photo = displayedPhotos[indexPath.item]
-        let cell: PhotoCell = collectionView.dequeueReusableCell(withReuseIdentifier: PhotoCell.reuseIdentifier, for: indexPath) as! PhotoCell
+        guard let cell: PhotoCell = collectionView.dequeueReusableCell(withReuseIdentifier: PhotoCell.reuseIdentifier, for: indexPath) as? PhotoCell else {
+            return UICollectionViewCell()
+        }
         cell.configure(
             withLoader: vm.loader,
             photo: photo,
@@ -204,7 +205,7 @@ extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSour
         )
         return cell
     }
-    
+
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
         let item = displayedPhotos[indexPath.item]
@@ -213,7 +214,7 @@ extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSour
             router.navigate(to: .detail(photo: item, previewImage: preViewImage), animated: true)
         }
     }
-    
+
 }
 
 extension HomeViewController: UICollectionViewDelegateFlowLayout {
@@ -226,18 +227,18 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
         }
         let gapBetween: CGFloat = flowLayout.minimumInteritemSpacing * 2
         let availableSpace = collectionView.frame.width - gapBetween
-        let w = availableSpace / 3
-        preferredCellSize = CGSize(width: w, height: w)
+        let width = availableSpace / 3
+        preferredCellSize = CGSize(width: width, height: width)
         return preferredCellSize
     }
 }
 
 extension HomeViewController: UICollectionViewDataSourcePrefetching {
-    
+
     func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
         vm.startPrefetchForIndexPaths(indexPaths)
     }
-    
+
     func collectionView(_ collectionView: UICollectionView, cancelPrefetchingForItemsAt indexPaths: [IndexPath]) {
         vm.cancelPrefetchingForIndexPaths(indexPaths)
     }
