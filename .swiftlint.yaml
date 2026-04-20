@@ -13,7 +13,7 @@ included:
 excluded:
   - Pods
   - Carthage
-  - fastlane
-  - vendor
-  - .build
-  - DerivedData
+  - fastlane/
+  - vendor/
+  - .build/
+  - DerivedData/
